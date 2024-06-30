@@ -1,0 +1,42 @@
+<%= form_with(model: @booking, url: bookings_path, local: true, data: {controller: "passenger"} )do |f| %>
+    <%# errors%>
+    <% if @booking.errors.any? %>
+        <div id="error_explanation">
+            <h2><%= pluralize(@booking.errors.count, "error") %> prohibited this booking from being saved:</h2>
+
+            <ul>
+                <% @booking.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>
+
+    <h2>Book Flight</h2>
+
+    <p>
+        Flight ID: <%= @flight.id %><br>
+        Departure Airport: <%= @flight.departure_airport.code %><br>
+        Arrival Airport: <%= @flight.arrival_airport.code %><br>
+        Start Date: <%= @flight.start_datetime %>
+    </p>
+
+    <%= f.hidden_field :flight_id, value: @flight.id %>
+
+    <div data-passenger-target="container" >
+        <%= f.fields_for :passengers do |passenger_form| %>
+            <%= render 'passenger_fields', f: passenger_form %>
+        <% end %>
+    </div>
+
+    <template data-passenger-target="template" >
+        <%= f.fields_for :passengers, Passenger.new, child_index: 'NEW_RECORD' do |passenger_form| %>
+            <%= render 'passenger_fields', f: passenger_form %>
+        <% end %>
+    </template>
+
+    <button data-action="click->passenger#addPassenger">Add Passenger</button>
+
+    <br><br>
+    <%= f.submit "Create Booking" %>
+<% end %>

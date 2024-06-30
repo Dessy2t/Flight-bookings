@@ -1,0 +1,36 @@
+
+<h1>Flight Booker</h1>
+
+<%= form_with url: flights_path, method: :get do %>
+    <h2>Flight Details</h2>
+    <%= label_tag :departure_airport %>
+    <%= collection_select :flight, :departure_airport_id, Airport.all, :id, :code, prompt: true %>
+
+    <%= label_tag :arrival_airport %>
+    <%= collection_select :flight, :arrival_airport_id, Airport.all, :id, :code, prompt: true %>
+
+    <%= label_tag :passengers, 'Tickets'%>
+    <%= select_tag :passengers, options_for_select([1, 2, 3, 4]) %>
+
+    <%= label_tag :start_datetime, 'Start Date' %>
+    <%# collection_select :flight, :start_datetime, Flight.all, :start_datetime, :start_datetime, prompt: true, selected: params[:flight]&.[](:start_datetime) %>
+    <%= select_tag :start_datetime, options_for_select(Flight.pluck(:start_datetime).map { |datetime| datetime.to_date }.uniq.sort), prompt: 'Select date' %>
+    <%# date_field_tag :start_datetime, params[:start_datetime] %>
+
+    <%= submit_tag "Search" %>
+<% end %>
+
+<% if @flights.any? %>
+    <h2>Available Flights</h2>
+    <%= form_with url: new_booking_path, method: :get do %>
+        <%= hidden_field_tag :passengers, params[:passengers] %>
+        <% @flights.each do |flight| %>
+            <%= radio_button_tag :flight_id, flight.id %>
+            <%= label_tag "flight_#{flight.id}", "#{flight.departure_airport.code} to #{flight.arrival_airport.code} on #{flight.start_datetime.strftime("%B %d, %Y at %I:%M %p")} Duration: #{flight.flight_duration}hrs" %>
+            <br>
+        <% end %>
+        <%= submit_tag "Book Flight" %>
+    <% end %>
+<% else %>
+    <h3>No flights available</h3>
+<% end %>
